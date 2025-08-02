@@ -8,7 +8,7 @@ const mockSciFiContent = [
     title: "Dune: Part Two",
     type: "Movie",
     year: 2024,
-    poster: "https://images.unsplash.com/photo-1534447677768-be436bb09401?w=400&h=600&fit=crop",
+    poster: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400&h=600&fit=crop&auto=format",
     synopsis: "Paul Atreides unites with Chani and the Fremen while seeking revenge against the conspirators who destroyed his family.",
     imdbRating: 8.5
   },
@@ -17,7 +17,7 @@ const mockSciFiContent = [
     title: "Foundation",
     type: "TV Series",
     year: 2023,
-    poster: "https://images.unsplash.com/photo-1614730321146-b6fa6a46bcb4?w=400&h=600&fit=crop",
+    poster: "https://images.unsplash.com/photo-1502134249126-9f3755a50d78?w=400&h=600&fit=crop&auto=format",
     synopsis: "A complex saga of humans scattered on planets throughout the galaxy all living under the rule of the Galactic Empire.",
     imdbRating: 7.3
   },
@@ -26,7 +26,7 @@ const mockSciFiContent = [
     title: "The Creator",
     type: "Movie",
     year: 2023,
-    poster: "https://images.unsplash.com/photo-1519904981063-b0cf448d479e?w=400&h=600&fit=crop",
+    poster: "https://images.unsplash.com/photo-1485827404703-89b55fcc595e?w=400&h=600&fit=crop&auto=format",
     synopsis: "Against the backdrop of a war between humans and robots with artificial intelligence, a former soldier finds the secret weapon.",
     imdbRating: 6.8
   },
@@ -35,7 +35,7 @@ const mockSciFiContent = [
     title: "Silo",
     type: "TV Series",
     year: 2023,
-    poster: "https://images.unsplash.com/photo-1446776653210-11ce2a7f1e96?w=400&h=600&fit=crop",
+    poster: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400&h=600&fit=crop&auto=format&sat=-100",
     synopsis: "Men and women live in a giant silo underground with several regulations which they believe are in place to protect them.",
     imdbRating: 8.1
   },
@@ -44,7 +44,7 @@ const mockSciFiContent = [
     title: "Rebel Moon",
     type: "Movie",
     year: 2023,
-    poster: "https://images.unsplash.com/photo-1518709268805-4e9042af9f82?w=400&h=600&fit=crop",
+    poster: "https://images.unsplash.com/photo-1472214103451-9374bd1c798e?w=400&h=600&fit=crop&auto=format",
     synopsis: "When a peaceful settlement on the edge of a distant moon finds itself threatened by a tyrannical ruling force, a stranger becomes their best hope.",
     imdbRating: 5.6
   },
@@ -53,7 +53,7 @@ const mockSciFiContent = [
     title: "For All Mankind",
     type: "TV Series",
     year: 2023,
-    poster: "https://images.unsplash.com/photo-1495745966610-bca67e3c7e3b?w=400&h=600&fit=crop",
+    poster: "https://images.unsplash.com/photo-1446776877081-d282a0f896e2?w=400&h=600&fit=crop&auto=format",
     synopsis: "In an alternative version of 1969, the Soviet Union beats the United States to the Moon, and the space race continues for decades.",
     imdbRating: 8.0
   },
@@ -62,7 +62,7 @@ const mockSciFiContent = [
     title: "The Expanse",
     type: "TV Series",
     year: 2022,
-    poster: "https://images.unsplash.com/photo-1419242902214-272b3f66ee7a?w=400&h=600&fit=crop",
+    poster: "https://images.unsplash.com/photo-1419242902214-272b3f66ee7a?w=400&h=600&fit=crop&auto=format",
     synopsis: "In the 24th century, a group of humans untangle a vast plot which threatens the Solar System's fragile state of detente.",
     imdbRating: 8.5
   },
@@ -71,7 +71,7 @@ const mockSciFiContent = [
     title: "Interstellar",
     type: "Movie",
     year: 2014,
-    poster: "https://images.unsplash.com/photo-1454391304352-2bf4678b1a7a?w=400&h=600&fit=crop",
+    poster: "https://images.unsplash.com/photo-1454391304352-2bf4678b1a7a?w=400&h=600&fit=crop&auto=format",
     synopsis: "A team of explorers travel through a wormhole in space in an attempt to ensure humanity's survival.",
     imdbRating: 8.7
   },
@@ -80,7 +80,7 @@ const mockSciFiContent = [
     title: "Stranger Things",
     type: "TV Series",
     year: 2024,
-    poster: "https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?w=400&h=600&fit=crop",
+    poster: "https://images.unsplash.com/photo-1534447677768-be436bb09401?w=400&h=600&fit=crop&auto=format",
     synopsis: "When a young boy disappears, his mother, a police chief and his friends must confront terrifying supernatural forces.",
     imdbRating: 8.7
   },
@@ -89,7 +89,7 @@ const mockSciFiContent = [
     title: "Blade Runner 2049",
     type: "Movie",
     year: 2017,
-    poster: "https://images.unsplash.com/photo-1536440136628-849c177e76a1?w=400&h=600&fit=crop",
+    poster: "https://images.unsplash.com/photo-1536440136628-849c177e76a1?w=400&h=600&fit=crop&auto=format",
     synopsis: "Young Blade Runner K's discovery of a long-buried secret leads him to track down former Blade Runner Rick Deckard.",
     imdbRating: 8.0
   },
@@ -98,7 +98,7 @@ const mockSciFiContent = [
     title: "The Mandalorian",
     type: "TV Series",
     year: 2023,
-    poster: "https://images.unsplash.com/photo-1533613220915-609f661a6fe1?w=400&h=600&fit=crop",
+    poster: "https://images.unsplash.com/photo-1533613220915-609f661a6fe1?w=400&h=600&fit=crop&auto=format",
     synopsis: "The travels of a lone bounty hunter in the outer reaches of the galaxy, far from the authority of the New Republic.",
     imdbRating: 8.6
   },
@@ -107,11 +107,89 @@ const mockSciFiContent = [
     title: "Avatar: The Way of Water",
     type: "Movie",
     year: 2022,
-    poster: "https://images.unsplash.com/photo-1506443432602-ac2fcd6f54e0?w=400&h=600&fit=crop",
+    poster: "https://images.unsplash.com/photo-1506443432602-ac2fcd6f54e0?w=400&h=600&fit=crop&auto=format",
     synopsis: "Jake Sully lives with his newfound family formed on the extrasolar moon Pandora. Once a familiar threat returns to finish what was previously started.",
     imdbRating: 7.6
   }
 ];
+
+const MovieCard = ({ movie, userRatings, comments, setRating, setComment }) => {
+  const rating = userRatings[movie.id];
+  const comment = comments[movie.id] || '';
+
+  return (
+    <div className="group relative bg-gray-900 rounded-xl overflow-hidden transform transition-all duration-300 hover:scale-[1.02] hover:shadow-2xl hover:shadow-blue-500/20 border border-gray-800/50">
+      <div className="absolute inset-0 bg-gradient-to-t from-gray-900 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+      
+      <div className="relative aspect-[2/3] overflow-hidden">
+        <img 
+          src={movie.poster} 
+          alt={movie.title}
+          className="w-full h-full object-cover transform transition-transform duration-500 group-hover:scale-110"
+          loading="lazy"
+        />
+        <div className="absolute top-3 right-3 bg-black/80 backdrop-blur-sm px-2.5 py-1.5 rounded-full flex items-center gap-1.5 shadow-lg">
+          <Star className="w-3.5 h-3.5 text-yellow-400 fill-yellow-400" />
+          <span className="text-xs text-yellow-400 font-bold">{movie.imdbRating}</span>
+        </div>
+        <div className="absolute inset-0 bg-gradient-to-t from-gray-900 via-gray-900/20 to-transparent"></div>
+      </div>
+
+      <div className="relative p-5 space-y-4">
+        <div className="space-y-2">
+          <h3 className="text-lg font-bold text-white line-clamp-1 leading-tight">{movie.title}</h3>
+          <p className="text-xs text-gray-400 font-medium">{movie.type} • {movie.year}</p>
+          <p className="text-xs text-gray-300 line-clamp-3 leading-relaxed">{movie.synopsis}</p>
+        </div>
+
+        <div className="flex flex-col gap-2">
+          <button
+            onClick={() => setRating(movie.id, rating === 'loved' ? '' : 'loved')}
+            className={`w-full py-2.5 px-3 rounded-lg text-xs font-medium transition-all duration-200 flex items-center justify-center gap-1.5 ${
+              rating === 'loved' 
+                ? 'bg-pink-500 text-white shadow-lg shadow-pink-500/30 ring-2 ring-pink-400/50' 
+                : 'bg-gray-800 text-gray-300 hover:bg-gray-700 hover:text-white'
+            }`}
+          >
+            <Heart className={`w-3.5 h-3.5 ${rating === 'loved' ? 'fill-white' : ''}`} />
+            <span className="font-semibold">Loved it</span>
+          </button>
+          <div className="flex gap-2">
+            <button
+              onClick={() => setRating(movie.id, rating === 'watched' ? '' : 'watched')}
+              className={`flex-1 py-2 px-3 rounded-lg text-xs font-medium transition-all duration-200 flex items-center justify-center gap-1 ${
+                rating === 'watched' 
+                  ? 'bg-blue-500 text-white shadow-lg shadow-blue-500/30 ring-2 ring-blue-400/50' 
+                  : 'bg-gray-800 text-gray-300 hover:bg-gray-700 hover:text-white'
+              }`}
+            >
+              <Eye className="w-3 h-3" />
+              <span className="font-medium">Watched</span>
+            </button>
+            <button
+              onClick={() => setRating(movie.id, rating === 'not-interested' ? '' : 'not-interested')}
+              className={`flex-1 py-2 px-3 rounded-lg text-xs font-medium transition-all duration-200 flex items-center justify-center gap-1 ${
+                rating === 'not-interested' 
+                  ? 'bg-gray-600 text-white ring-2 ring-gray-500/50' 
+                  : 'bg-gray-800 text-gray-300 hover:bg-gray-700 hover:text-white'
+              }`}
+            >
+              <EyeOff className="w-3 h-3" />
+              <span className="font-medium">Pass</span>
+            </button>
+          </div>
+        </div>
+
+        <textarea
+          value={comment}
+          onChange={(e) => setComment(movie.id, e.target.value)}
+          placeholder="Add your thoughts..."
+          className="w-full bg-gray-100 border border-gray-300 text-gray-900 text-xs rounded-lg p-3 min-h-[70px] resize-none focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 transition-all duration-200 placeholder-gray-600"
+        />
+      </div>
+    </div>
+  );
+};
 
 const SciFiTracker = () => {
   const [movies, setMovies] = useState([]);
@@ -274,81 +352,6 @@ const SciFiTracker = () => {
     }
   };
 
-  const MovieCard = ({ movie }) => {
-    const rating = userRatings[movie.id];
-    const comment = comments[movie.id] || '';
-
-    return (
-      <div className="group relative bg-gray-900 rounded-lg overflow-hidden transform transition-all duration-300 hover:scale-105 hover:shadow-2xl hover:shadow-blue-500/20">
-        <div className="absolute inset-0 bg-gradient-to-t from-gray-900 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-        
-        <div className="relative aspect-[2/3] overflow-hidden">
-          <img 
-            src={movie.poster} 
-            alt={movie.title}
-            className="w-full h-full object-cover transform transition-transform duration-500 group-hover:scale-110"
-          />
-          <div className="absolute top-2 right-2 bg-black/70 backdrop-blur-sm px-2 py-1 rounded-full flex items-center gap-1">
-            <Star className="w-3 h-3 text-yellow-400 fill-yellow-400" />
-            <span className="text-xs text-yellow-400 font-semibold">{movie.imdbRating}</span>
-          </div>
-          <div className="absolute inset-0 bg-gradient-to-t from-gray-900 via-gray-900/20 to-transparent"></div>
-        </div>
-
-        <div className="relative p-4 space-y-3">
-          <div>
-            <h3 className="text-lg font-bold text-white mb-1 line-clamp-1">{movie.title}</h3>
-            <p className="text-xs text-gray-400 mb-2">{movie.type} • {movie.year}</p>
-            <p className="text-xs text-gray-300 line-clamp-2">{movie.synopsis}</p>
-          </div>
-
-          <div className="flex gap-2">
-            <button
-              onClick={() => setRating(movie.id, rating === 'loved' ? '' : 'loved')}
-              className={`flex-1 py-2 px-3 rounded-lg text-xs font-medium transition-all duration-200 flex items-center justify-center gap-1 ${
-                rating === 'loved' 
-                  ? 'bg-pink-500 text-white shadow-lg shadow-pink-500/30' 
-                  : 'bg-gray-800 text-gray-300 hover:bg-gray-700'
-              }`}
-            >
-              <Heart className={`w-3 h-3 ${rating === 'loved' ? 'fill-white' : ''}`} />
-              Loved it
-            </button>
-            <button
-              onClick={() => setRating(movie.id, rating === 'watched' ? '' : 'watched')}
-              className={`flex-1 py-2 px-3 rounded-lg text-xs font-medium transition-all duration-200 flex items-center justify-center gap-1 ${
-                rating === 'watched' 
-                  ? 'bg-blue-500 text-white shadow-lg shadow-blue-500/30' 
-                  : 'bg-gray-800 text-gray-300 hover:bg-gray-700'
-              }`}
-            >
-              <Eye className="w-3 h-3" />
-              Watched
-            </button>
-            <button
-              onClick={() => setRating(movie.id, rating === 'not-interested' ? '' : 'not-interested')}
-              className={`flex-1 py-2 px-3 rounded-lg text-xs font-medium transition-all duration-200 flex items-center justify-center gap-1 ${
-                rating === 'not-interested' 
-                  ? 'bg-gray-600 text-white' 
-                  : 'bg-gray-800 text-gray-300 hover:bg-gray-700'
-              }`}
-            >
-              <EyeOff className="w-3 h-3" />
-              Pass
-            </button>
-          </div>
-
-          <textarea
-            value={comment}
-            onChange={(e) => setComment(movie.id, e.target.value)}
-            placeholder="Add your thoughts..."
-            className="w-full bg-gray-800 text-gray-300 text-xs rounded-lg p-2 min-h-[60px] resize-none focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all duration-200"
-          />
-        </div>
-      </div>
-    );
-  };
-
   if (loading) {
     return (
       <div className="min-h-screen bg-black flex items-center justify-center">
@@ -401,7 +404,7 @@ const SciFiTracker = () => {
 
       <div className="relative z-10">
         {/* Header */}
-        <header className="bg-gray-900/80 backdrop-blur-lg border-b border-gray-800 sticky top-0 z-50">
+        <header className="bg-gray-900 backdrop-blur-lg border-b border-gray-800 sticky top-0 z-50">
           <div className="container mx-auto px-4 py-6">
             <div className="flex items-center justify-between mb-6">
               <div className="flex items-center gap-3">
@@ -505,7 +508,14 @@ const SciFiTracker = () => {
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-6">
               {filteredMovies.map(movie => (
-                <MovieCard key={movie.id} movie={movie} />
+                <MovieCard 
+                  key={movie.id} 
+                  movie={movie} 
+                  userRatings={userRatings}
+                  comments={comments}
+                  setRating={setRating}
+                  setComment={setComment}
+                />
               ))}
             </div>
           )}
