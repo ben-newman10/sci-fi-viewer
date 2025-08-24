@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { Star, Eye, EyeOff, Heart, Filter, Sparkles, Loader2, AlertCircle, RefreshCw } from 'lucide-react';
 import './App.css';
 import { 
@@ -102,6 +102,7 @@ const SciFiTracker = () => {
   const [totalTvPages, setTotalTvPages] = useState(1);
   const [cachedData, setCachedData] = useState({});
   const [lastRequestTime, setLastRequestTime] = useState(0);
+  const requestIdRef = useRef(0);
 
   useEffect(() => {
     const savedRatings = localStorage.getItem(STORAGE_KEYS.RATINGS);
@@ -200,11 +201,17 @@ const SciFiTracker = () => {
   }, [cachedData]);
 
   useEffect(() => {
+    const abortController = new AbortController();
+    
     // Reset pagination when content type changes
     setCurrentMoviePage(1);
     setCurrentTvPage(1);
     setMovies([]); // Clear existing data
-    fetchSciFiContent(false, true); // Force fresh fetch
+    fetchSciFiContent(false, true, abortController.signal); // Force fresh fetch
+    
+    return () => {
+      abortController.abort();
+    };
   }, [contentType]);
 
   // Periodic cache cleanup
@@ -230,7 +237,17 @@ const SciFiTracker = () => {
     return () => clearInterval(interval);
   }, []);
 
-  const fetchSciFiContent = async (append = false, forceRefresh = false) => {
+  // Utility function to remove duplicate movies based on ID
+  const deduplicateMovies = (movies) => {
+    return movies.filter((item, index, arr) => 
+      arr.findIndex(i => i.id === item.id) === index
+    );
+  };
+
+  const fetchSciFiContent = async (append = false, forceRefresh = false, abortSignal) => {
+    // Generate unique request ID to track this request
+    const currentRequestId = ++requestIdRef.current;
+    
     if (append) {
       setLoadingMore(true);
     } else {
@@ -258,7 +275,8 @@ const SciFiTracker = () => {
         headers: {
           accept: 'application/json',
           Authorization: `Bearer ${API_KEY}`
-        }
+        },
+        signal: abortSignal
       };
       
       // API rate limiting - ensure minimum time between requests
@@ -383,32 +401,44 @@ const SciFiTracker = () => {
         });
       }
       
+      // Check if this request was aborted or superseded
+      if (abortSignal?.aborted || currentRequestId !== requestIdRef.current) {
+        return;
+      }
+
       const newContent = [...allMovies, ...allTVShows]
         .sort((a, b) => parseFloat(b.imdbRating) - parseFloat(a.imdbRating));
       
+      // Apply deduplication to new content
+      const deduplicatedNewContent = deduplicateMovies(newContent);
+      
       if (append) {
         setMovies(prev => {
-          const combined = [...prev, ...newContent];
-          // Remove duplicates
-          const unique = combined.filter((item, index, arr) => 
-            arr.findIndex(i => i.id === item.id) === index
-          );
+          const combined = [...prev, ...deduplicatedNewContent];
+          // Remove duplicates from combined array
+          const unique = deduplicateMovies(combined);
           return unique.sort((a, b) => parseFloat(b.imdbRating) - parseFloat(a.imdbRating));
         });
       } else {
-        setMovies(newContent);
-        // Cache the data with timestamp
+        setMovies(deduplicatedNewContent);
+        // Cache the deduplicated data with timestamp
         setCachedData(prev => ({
           ...prev,
-          [cacheKey]: newContent,
+          [cacheKey]: deduplicatedNewContent,
           [`${cacheKey}_timestamp`]: Date.now()
         }));
       }
     } catch (err) {
-      setError(err.message);
+      // Don't set error for aborted requests
+      if (err.name !== 'AbortError' && currentRequestId === requestIdRef.current) {
+        setError(err.message);
+      }
     } finally {
-      setLoading(false);
-      setLoadingMore(false);
+      // Only update loading state if this is still the current request
+      if (currentRequestId === requestIdRef.current) {
+        setLoading(false);
+        setLoadingMore(false);
+      }
     }
   };
 
@@ -418,6 +448,15 @@ const SciFiTracker = () => {
 
   // Debounced comment saving
   const commentTimeouts = React.useRef({});
+  
+  // Cleanup comment timeouts on unmount
+  useEffect(() => {
+    return () => {
+      Object.values(commentTimeouts.current).forEach(clearTimeout);
+      commentTimeouts.current = {};
+    };
+  }, []);
+  
   const setComment = (movieId, comment) => {
     // Clear previous timeout for this movie
     if (commentTimeouts.current[movieId]) {
@@ -445,7 +484,7 @@ const SciFiTracker = () => {
       setCurrentTvPage(currentTvPage + 3);
     }
     
-    await fetchSciFiContent(true);
+    await fetchSciFiContent(true, false, null);
   }, [contentType, currentMoviePage, currentTvPage]);
 
   const canLoadMore = () => {
@@ -509,7 +548,7 @@ const SciFiTracker = () => {
           <p className="error-message">{error}</p>
           <p className="error-subtext">Please check your connection and try again.</p>
           <div className="error-indicator-controls">
-            <button onClick={fetchSciFiContent} className="btn btn-primary">
+            <button onClick={() => fetchSciFiContent(false, true, null)} className="btn btn-primary">
               Retry
             </button>
           </div>
@@ -555,7 +594,7 @@ const SciFiTracker = () => {
                   </button>
                 </div>
                 <button
-                  onClick={() => fetchSciFiContent()}
+                  onClick={() => fetchSciFiContent(false, true, null)}
                   className="btn btn-primary"
                 >
                   <RefreshCw size={16} />
