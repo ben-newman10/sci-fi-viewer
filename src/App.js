@@ -1,118 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { Star, Eye, EyeOff, Heart, Filter, Sparkles, Loader2, AlertCircle, ToggleLeft, ToggleRight, RefreshCw } from 'lucide-react';
+import { Star, Eye, EyeOff, Heart, Filter, Sparkles, Loader2, AlertCircle, RefreshCw } from 'lucide-react';
 import './App.css';
 
-// Mock IMDB-style sci-fi data
-const mockSciFiContent = [
-    {
-        id: 1,
-        title: "Dune: Part Two",
-        type: "Movie",
-        year: 2024,
-        poster: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400&h=600&fit=crop&auto=format",
-        synopsis: "Paul Atreides unites with Chani and the Fremen while seeking revenge against the conspirators who destroyed his family.",
-        imdbRating: 8.5
-      },
-      {
-        id: 2,
-        title: "Foundation",
-        type: "TV Series",
-        year: 2023,
-        poster: "https://images.unsplash.com/photo-1502134249126-9f3755a50d78?w=400&h=600&fit=crop&auto=format",
-        synopsis: "A complex saga of humans scattered on planets throughout the galaxy all living under the rule of the Galactic Empire.",
-        imdbRating: 7.3
-      },
-      {
-        id: 3,
-        title: "The Creator",
-        type: "Movie",
-        year: 2023,
-        poster: "https://images.unsplash.com/photo-1485827404703-89b55fcc595e?w=400&h=600&fit=crop&auto=format",
-        synopsis: "Against the backdrop of a war between humans and robots with artificial intelligence, a former soldier finds the secret weapon.",
-        imdbRating: 6.8
-      },
-      {
-        id: 4,
-        title: "Silo",
-        type: "TV Series",
-        year: 2023,
-        poster: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400&h=600&fit=crop&auto=format&sat=-100",
-        synopsis: "Men and women live in a giant silo underground with several regulations which they believe are in place to protect them.",
-        imdbRating: 8.1
-      },
-      {
-        id: 5,
-        title: "Rebel Moon",
-        type: "Movie",
-        year: 2023,
-        poster: "https://images.unsplash.com/photo-1472214103451-9374bd1c798e?w=400&h=600&fit=crop&auto=format",
-        synopsis: "When a peaceful settlement on the edge of a distant moon finds itself threatened by a tyrannical ruling force, a stranger becomes their best hope.",
-        imdbRating: 5.6
-      },
-      {
-        id: 6,
-        title: "For All Mankind",
-        type: "TV Series",
-        year: 2023,
-        poster: "https://images.unsplash.com/photo-1446776877081-d282a0f896e2?w=400&h=600&fit=crop&auto=format",
-        synopsis: "In an alternative version of 1969, the Soviet Union beats the United States to the Moon, and the space race continues for decades.",
-        imdbRating: 8.0
-      },
-      {
-        id: 7,
-        title: "The Expanse",
-        type: "TV Series",
-        year: 2022,
-        poster: "https://images.unsplash.com/photo-1419242902214-272b3f66ee7a?w=400&h=600&fit=crop&auto=format",
-        synopsis: "In the 24th century, a group of humans untangle a vast plot which threatens the Solar System's fragile state of detente.",
-        imdbRating: 8.5
-      },
-      {
-        id: 8,
-        title: "Interstellar",
-        type: "Movie",
-        year: 2014,
-        poster: "https://images.unsplash.com/photo-1454391304352-2bf4678b1a7a?w=400&h=600&fit=crop&auto=format",
-        synopsis: "A team of explorers travel through a wormhole in space in an attempt to ensure humanity's survival.",
-        imdbRating: 8.7
-      },
-      {
-        id: 9,
-        title: "Stranger Things",
-        type: "TV Series",
-        year: 2024,
-        poster: "https://images.unsplash.com/photo-1534447677768-be436bb09401?w=400&h=600&fit=crop&auto=format",
-        synopsis: "When a young boy disappears, his mother, a police chief and his friends must confront terrifying supernatural forces.",
-        imdbRating: 8.7
-      },
-      {
-        id: 10,
-        title: "Blade Runner 2049",
-        type: "Movie",
-        year: 2017,
-        poster: "https://images.unsplash.com/photo-1536440136628-849c177e76a1?w=400&h=600&fit=crop&auto=format",
-        synopsis: "Young Blade Runner K's discovery of a long-buried secret leads him to track down former Blade Runner Rick Deckard.",
-        imdbRating: 8.0
-      },
-      {
-        id: 11,
-        title: "The Mandalorian",
-        type: "TV Series",
-        year: 2023,
-        poster: "https://images.unsplash.com/photo-1533613220915-609f661a6fe1?w=400&h=600&fit=crop&auto=format",
-        synopsis: "The travels of a lone bounty hunter in the outer reaches of the galaxy, far from the authority of the New Republic.",
-        imdbRating: 8.6
-      },
-      {
-        id: 12,
-        title: "Avatar: The Way of Water",
-        type: "Movie",
-        year: 2022,
-        poster: "https://images.unsplash.com/photo-1506443432602-ac2fcd6f54e0?w=400&h=600&fit=crop&auto=format",
-        synopsis: "Jake Sully lives with his newfound family formed on the extrasolar moon Pandora. Once a familiar threat returns to finish what was previously started.",
-        imdbRating: 7.6
-      }
-];
 
 const MovieCard = ({ movie, userRatings, comments, setRating, setComment }) => {
   const rating = userRatings[movie.id];
@@ -180,20 +69,43 @@ const MovieCard = ({ movie, userRatings, comments, setRating, setComment }) => {
 const SciFiTracker = () => {
   const [movies, setMovies] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
   const [error, setError] = useState(null);
   const [filter, setFilter] = useState('all');
   const [userRatings, setUserRatings] = useState({});
   const [comments, setComments] = useState({});
-  const [useMockData, setUseMockData] = useState(false);
+  const [contentType, setContentType] = useState('all');
+  const [currentMoviePage, setCurrentMoviePage] = useState(1);
+  const [currentTvPage, setCurrentTvPage] = useState(1);
+  const [totalMoviePages, setTotalMoviePages] = useState(1);
+  const [totalTvPages, setTotalTvPages] = useState(1);
+  const [cachedData, setCachedData] = useState({});
 
   useEffect(() => {
     const savedRatings = localStorage.getItem('scifiRatings');
     const savedComments = localStorage.getItem('scifiComments');
-    const savedMockMode = localStorage.getItem('scifiMockMode');
+    const savedContentType = localStorage.getItem('scifiContentType');
+    const savedFilter = localStorage.getItem('scifiFilter');
+    const savedMoviePage = localStorage.getItem('scifiMoviePage');
+    const savedTvPage = localStorage.getItem('scifiTvPage');
+    const savedCachedData = sessionStorage.getItem('scifiCachedData');
+    
+    console.log('Loading saved data from localStorage:', {
+      ratingsCount: savedRatings ? Object.keys(JSON.parse(savedRatings)).length : 0,
+      commentsCount: savedComments ? Object.keys(JSON.parse(savedComments)).length : 0,
+      filter: savedFilter || 'all',
+      contentType: savedContentType || 'all',
+      moviePage: savedMoviePage || 1,
+      tvPage: savedTvPage || 1
+    });
     
     if (savedRatings) setUserRatings(JSON.parse(savedRatings));
     if (savedComments) setComments(JSON.parse(savedComments));
-    if (savedMockMode !== null) setUseMockData(JSON.parse(savedMockMode));
+    if (savedContentType) setContentType(savedContentType);
+    if (savedFilter) setFilter(savedFilter);
+    if (savedMoviePage) setCurrentMoviePage(parseInt(savedMoviePage));
+    if (savedTvPage) setCurrentTvPage(parseInt(savedTvPage));
+    if (savedCachedData) setCachedData(JSON.parse(savedCachedData));
   }, []);
 
   useEffect(() => {
@@ -205,28 +117,37 @@ const SciFiTracker = () => {
   }, [comments]);
 
   useEffect(() => {
-    localStorage.setItem('scifiMockMode', JSON.stringify(useMockData));
-  }, [useMockData]);
+    localStorage.setItem('scifiContentType', contentType);
+  }, [contentType]);
 
   useEffect(() => {
-    if (useMockData) {
-      loadMockData();
-    } else {
-      fetchSciFiContent();
+    localStorage.setItem('scifiFilter', filter);
+  }, [filter]);
+
+  useEffect(() => {
+    localStorage.setItem('scifiMoviePage', currentMoviePage.toString());
+  }, [currentMoviePage]);
+
+  useEffect(() => {
+    localStorage.setItem('scifiTvPage', currentTvPage.toString());
+  }, [currentTvPage]);
+
+  useEffect(() => {
+    if (Object.keys(cachedData).length > 0) {
+      sessionStorage.setItem('scifiCachedData', JSON.stringify(cachedData));
     }
-  }, [useMockData]);
+  }, [cachedData]);
 
-  const loadMockData = () => {
-    setLoading(true);
-    setTimeout(() => {
-      setMovies(mockSciFiContent);
-      setError(null);
-      setLoading(false);
-    }, 500);
-  };
+  useEffect(() => {
+    fetchSciFiContent();
+  }, [contentType]);
 
-  const fetchSciFiContent = async () => {
-    setLoading(true);
+  const fetchSciFiContent = async (append = false) => {
+    if (append) {
+      setLoadingMore(true);
+    } else {
+      setLoading(true);
+    }
     setError(null);
 
     const handleResponseError = async (response) => {
@@ -252,52 +173,127 @@ const SciFiTracker = () => {
         }
       };
       
-      const [moviesResponse, tvResponse] = await Promise.all([
-        fetch(`https://api.themoviedb.org/3/discover/movie?with_genres=878&sort_by=popularity.desc&page=1`, options),
-        fetch(`https://api.themoviedb.org/3/discover/tv?with_genres=10765&sort_by=popularity.desc&page=1`, options)
+      // Check cache first
+      const cacheKey = `movies-${currentMoviePage}-tv-${currentTvPage}`;
+      if (cachedData[cacheKey] && !append) {
+        console.log('Using cached data for', cacheKey);
+        setMovies(cachedData[cacheKey]);
+        setLoading(false);
+        return;
+      }
+      
+      // Fetch multiple pages for initial load
+      const pagesToFetch = append ? 1 : 3;
+      const moviePromises = [];
+      const tvPromises = [];
+      
+      // Only fetch based on content type
+      if (contentType === 'all' || contentType === 'movies') {
+        for (let i = 0; i < pagesToFetch; i++) {
+          const moviePage = append ? currentMoviePage + i : i + 1;
+          moviePromises.push(
+            fetch(`https://api.themoviedb.org/3/discover/movie?with_genres=878&sort_by=popularity.desc&page=${moviePage}`, options)
+          );
+        }
+      }
+      
+      if (contentType === 'all' || contentType === 'tv') {
+        for (let i = 0; i < pagesToFetch; i++) {
+          const tvPage = append ? currentTvPage + i : i + 1;
+          tvPromises.push(
+            fetch(`https://api.themoviedb.org/3/discover/tv?with_genres=10765&sort_by=popularity.desc&page=${tvPage}`, options)
+          );
+        }
+      }
+      
+      const [movieResponses, tvResponses] = await Promise.all([
+        moviePromises.length > 0 ? Promise.all(moviePromises) : Promise.resolve([]),
+        tvPromises.length > 0 ? Promise.all(tvPromises) : Promise.resolve([])
       ]);
       
-      if (!moviesResponse.ok) {
-        const errorMessage = await handleResponseError(moviesResponse);
-        throw new Error(`Failed to fetch movies: ${errorMessage}`);
-      }
-
-      if (!tvResponse.ok) {
-        const errorMessage = await handleResponseError(tvResponse);
-        throw new Error(`Failed to fetch TV shows: ${errorMessage}`);
+      // Check for errors
+      for (const response of [...movieResponses, ...tvResponses]) {
+        if (!response.ok) {
+          const errorMessage = await handleResponseError(response);
+          throw new Error(`Failed to fetch data: ${errorMessage}`);
+        }
       }
       
-      const moviesData = await moviesResponse.json();
-      const tvData = await tvResponse.json();
+      const movieDataPromises = movieResponses.length > 0 ? movieResponses.map(response => response.json()) : [];
+      const tvDataPromises = tvResponses.length > 0 ? tvResponses.map(response => response.json()) : [];
       
-      const processedMovies = moviesData.results.slice(0, 8).map(movie => ({
-        id: `movie-${movie.id}`,
-        title: movie.title,
-        type: "Movie",
-        year: new Date(movie.release_date).getFullYear() || 'TBA',
-        poster: movie.poster_path ? `https://image.tmdb.org/t/p/w500${movie.poster_path}` : `https://images.unsplash.com/photo-1534447677768-be436bb09401?w=400&h=600&fit=crop`,
-        synopsis: movie.overview || "No synopsis available.",
-        imdbRating: movie.vote_average.toFixed(1)
-      }));
+      const [movieDataArray, tvDataArray] = await Promise.all([
+        movieDataPromises.length > 0 ? Promise.all(movieDataPromises) : Promise.resolve([]),
+        tvDataPromises.length > 0 ? Promise.all(tvDataPromises) : Promise.resolve([])
+      ]);
       
-      const processedTVShows = tvData.results.slice(0, 8).map(show => ({
-        id: `tv-${show.id}`,
-        title: show.name,
-        type: "TV Series",
-        year: new Date(show.first_air_date).getFullYear() || 'TBA',
-        poster: show.poster_path ? `https://image.tmdb.org/t/p/w500${show.poster_path}` : `https://images.unsplash.com/photo-1614730321146-b6fa6a46bcb4?w=400&h=600&fit=crop`,
-        synopsis: show.overview || "No synopsis available.",
-        imdbRating: show.vote_average.toFixed(1)
-      }));
+      // Set pagination info from first response
+      if (movieDataArray.length > 0 && movieDataArray[0]) {
+        setTotalMoviePages(movieDataArray[0].total_pages);
+      }
+      if (tvDataArray.length > 0 && tvDataArray[0]) {
+        setTotalTvPages(tvDataArray[0].total_pages);
+      }
       
-      const allContent = [...processedMovies, ...processedTVShows]
+      // Process all results
+      let allMovies = [];
+      let allTVShows = [];
+      
+      if (movieDataArray.length > 0) {
+        movieDataArray.forEach(data => {
+          const processedMovies = data.results.map(movie => ({
+            id: `movie-${movie.id}`,
+            title: movie.title,
+            type: "Movie",
+            year: new Date(movie.release_date).getFullYear() || 'TBA',
+            poster: movie.poster_path ? `https://image.tmdb.org/t/p/w500${movie.poster_path}` : `https://images.unsplash.com/photo-1534447677768-be436bb09401?w=400&h=600&fit=crop`,
+            synopsis: movie.overview || "No synopsis available.",
+            imdbRating: movie.vote_average.toFixed(1)
+          }));
+          allMovies.push(...processedMovies);
+        });
+      }
+      
+      if (tvDataArray.length > 0) {
+        tvDataArray.forEach(data => {
+          const processedTVShows = data.results.map(show => ({
+            id: `tv-${show.id}`,
+            title: show.name,
+            type: "TV Series",
+            year: new Date(show.first_air_date).getFullYear() || 'TBA',
+            poster: show.poster_path ? `https://image.tmdb.org/t/p/w500${show.poster_path}` : `https://images.unsplash.com/photo-1614730321146-b6fa6a46bcb4?w=400&h=600&fit=crop`,
+            synopsis: show.overview || "No synopsis available.",
+            imdbRating: show.vote_average.toFixed(1)
+          }));
+          allTVShows.push(...processedTVShows);
+        });
+      }
+      
+      const newContent = [...allMovies, ...allTVShows]
         .sort((a, b) => parseFloat(b.imdbRating) - parseFloat(a.imdbRating));
       
-      setMovies(allContent);
+      if (append) {
+        setMovies(prev => {
+          const combined = [...prev, ...newContent];
+          // Remove duplicates
+          const unique = combined.filter((item, index, arr) => 
+            arr.findIndex(i => i.id === item.id) === index
+          );
+          return unique.sort((a, b) => parseFloat(b.imdbRating) - parseFloat(a.imdbRating));
+        });
+      } else {
+        setMovies(newContent);
+        // Cache the data
+        setCachedData(prev => ({
+          ...prev,
+          [cacheKey]: newContent
+        }));
+      }
     } catch (err) {
       setError(err.message);
     } finally {
       setLoading(false);
+      setLoadingMore(false);
     }
   };
 
@@ -307,6 +303,27 @@ const SciFiTracker = () => {
 
   const setComment = (movieId, comment) => {
     setComments(prev => ({ ...prev, [movieId]: comment }));
+  };
+
+  const loadMoreContent = async () => {
+    if (contentType === 'all' || contentType === 'movies') {
+      setCurrentMoviePage(currentMoviePage + 3);
+    }
+    if (contentType === 'all' || contentType === 'tv') {
+      setCurrentTvPage(currentTvPage + 3);
+    }
+    
+    await fetchSciFiContent(true);
+  };
+
+  const canLoadMore = () => {
+    if (contentType === 'movies') {
+      return currentMoviePage < totalMoviePages;
+    } else if (contentType === 'tv') {
+      return currentTvPage < totalTvPages;
+    } else {
+      return currentMoviePage < totalMoviePages || currentTvPage < totalTvPages;
+    }
   };
 
   const getFilteredMovies = () => {
@@ -381,18 +398,28 @@ const SciFiTracker = () => {
                 <h1>Sci-Fi Tracker</h1>
               </div>
               <div className="header-controls">
-                <div className="data-source-toggle">
-                  <span className={!useMockData ? 'active' : 'inactive'}>TMDB</span>
+                <div className="content-type-selector">
                   <button
-                    onClick={() => setUseMockData(!useMockData)}
-                    className={`toggle-switch ${useMockData ? '' : 'active'}`}
+                    onClick={() => setContentType('all')}
+                    className={`content-type-btn ${contentType === 'all' ? 'active' : ''}`}
                   >
-                    {useMockData ? <ToggleRight size={32} /> : <ToggleLeft size={32} />}
+                    All
                   </button>
-                  <span className={useMockData ? 'active' : 'inactive'}>Mock</span>
+                  <button
+                    onClick={() => setContentType('movies')}
+                    className={`content-type-btn ${contentType === 'movies' ? 'active' : ''}`}
+                  >
+                    Movies
+                  </button>
+                  <button
+                    onClick={() => setContentType('tv')}
+                    className={`content-type-btn ${contentType === 'tv' ? 'active' : ''}`}
+                  >
+                    TV Shows
+                  </button>
                 </div>
                 <button
-                  onClick={useMockData ? loadMockData : fetchSciFiContent}
+                  onClick={() => fetchSciFiContent()}
                   className="btn btn-primary"
                 >
                   <RefreshCw size={16} />
@@ -418,18 +445,53 @@ const SciFiTracker = () => {
               </div>
             </div>
           ) : (
-            <div className="content-grid">
-              {filteredMovies.map(movie => (
-                <MovieCard 
-                  key={movie.id} 
-                  movie={movie} 
-                  userRatings={userRatings}
-                  comments={comments}
-                  setRating={setRating}
-                  setComment={setComment}
-                />
-              ))}
-            </div>
+            <>
+              {Object.keys(userRatings).length > 0 && (
+                <div className="content-info">
+                  <p className="data-restored">
+                    ✅ Your ratings and comments have been restored
+                  </p>
+                </div>
+              )}
+              <div className="content-grid">
+                {filteredMovies.map(movie => (
+                  <MovieCard 
+                    key={movie.id} 
+                    movie={movie} 
+                    userRatings={userRatings}
+                    comments={comments}
+                    setRating={setRating}
+                    setComment={setComment}
+                  />
+                ))}
+              </div>
+              {canLoadMore() && (
+                <div className="load-more-section">
+                  <button
+                    onClick={loadMoreContent}
+                    disabled={loadingMore}
+                    className="btn btn-primary load-more-btn"
+                  >
+                    {loadingMore ? (
+                      <>
+                        <Loader2 size={16} className="spinner" />
+                        <span>Loading More...</span>
+                      </>
+                    ) : (
+                      <>
+                        <RefreshCw size={16} />
+                        <span>Load More Content</span>
+                      </>
+                    )}
+                  </button>
+                  <p className="load-more-info">
+                    {contentType === 'movies' && `Movies: Page ${Math.ceil(currentMoviePage/3)} of ${Math.ceil(totalMoviePages/3)}`}
+                    {contentType === 'tv' && `TV Shows: Page ${Math.ceil(currentTvPage/3)} of ${Math.ceil(totalTvPages/3)}`}
+                    {contentType === 'all' && `Movies: Page ${Math.ceil(currentMoviePage/3)} of ${Math.ceil(totalMoviePages/3)} | TV: Page ${Math.ceil(currentTvPage/3)} of ${Math.ceil(totalTvPages/3)}`}
+                  </p>
+                </div>
+              )}
+            </>
           )}
         </main>
       </div>
