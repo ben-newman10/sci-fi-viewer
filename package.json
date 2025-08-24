@@ -2,21 +2,33 @@
   "name": "sci-fi-viewer",
   "version": "1.0.0",
   "description": "A React app to discover and track Science Fiction TV series and movies",
+  "homepage": "https://ben-newman10.github.io/sci-fi-viewer",
   "main": "index.js",
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "predeploy": "npm run build",
+    "deploy": "gh-pages -d build"
   },
-  "keywords": ["react", "sci-fi", "movies", "tv-series", "tracker"],
+  "keywords": [
+    "react",
+    "sci-fi",
+    "movies",
+    "tv-series",
+    "tracker"
+  ],
   "author": "",
   "license": "MIT",
   "dependencies": {
+    "lucide-react": "^0.263.1",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
-    "react-scripts": "5.0.1",
-    "lucide-react": "^0.263.1"
+    "react-scripts": "5.0.1"
+  },
+  "devDependencies": {
+    "gh-pages": "^6.1.1"
   },
   "browserslist": {
     "production": [
