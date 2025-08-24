@@ -532,6 +532,108 @@ body {
   background: var(--primary-accent-hover);
 }
 
+/* Error Boundary Styles */
+.error-boundary {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  padding: 2rem;
+  background: var(--background-dark);
+}
+
+.error-boundary-content {
+  text-align: center;
+  max-width: 500px;
+  padding: 3rem;
+  background: var(--background-light);
+  border-radius: 1rem;
+  border: 1px solid var(--border-color);
+}
+
+.error-boundary-icon {
+  color: var(--danger-color);
+  margin-bottom: 1.5rem;
+}
+
+.error-boundary-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 1rem;
+}
+
+.error-boundary-message {
+  color: var(--text-secondary);
+  margin-bottom: 2rem;
+  line-height: 1.5;
+}
+
+.error-boundary-actions {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  margin-bottom: 2rem;
+}
+
+.error-boundary-retry {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.error-boundary-reload {
+  background: transparent;
+  color: var(--text-secondary);
+  border: 1px solid var(--border-color);
+}
+
+.error-boundary-reload:hover {
+  background: var(--background-dark);
+  color: var(--text-primary);
+}
+
+.error-boundary-details {
+  text-align: left;
+  margin-top: 1rem;
+  padding: 1rem;
+  background: var(--background-dark);
+  border-radius: 0.5rem;
+  border: 1px solid var(--border-color);
+}
+
+.error-boundary-details summary {
+  cursor: pointer;
+  color: var(--text-secondary);
+  font-weight: 600;
+  margin-bottom: 1rem;
+}
+
+.error-boundary-details summary:hover {
+  color: var(--text-primary);
+}
+
+.error-boundary-stack {
+  font-family: 'Courier New', monospace;
+  font-size: 0.75rem;
+}
+
+.error-boundary-stack h4 {
+  color: var(--text-primary);
+  margin: 1rem 0 0.5rem 0;
+  font-size: 0.875rem;
+}
+
+.error-boundary-stack pre {
+  color: var(--danger-color);
+  background: rgba(248, 81, 73, 0.1);
+  padding: 0.5rem;
+  border-radius: 0.25rem;
+  overflow-x: auto;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
 /* Responsive adjustments */
 @media (max-width: 768px) {
   .content-info {

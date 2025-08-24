@@ -1,9 +1,30 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { Star, Eye, EyeOff, Heart, Filter, Sparkles, Loader2, AlertCircle, RefreshCw } from 'lucide-react';
 import './App.css';
+import { 
+  validateRatings, 
+  validateComments, 
+  validateContentType, 
+  validateStoredData,
+  validatePageNumber,
+  sanitizeAPIResponse
+} from './utils/validation';
+import {
+  API_CONFIG,
+  RATING_TYPES,
+  RATING_LABELS,
+  CONTENT_TYPES,
+  CONTENT_TYPE_LABELS,
+  FILTER_TYPES,
+  FILTER_LABELS,
+  STORAGE_KEYS,
+  UI_CONFIG,
+  IMAGE_CONFIG
+} from './constants';
+import ErrorBoundary from './components/ErrorBoundary';
 
 
-const MovieCard = ({ movie, userRatings, comments, setRating, setComment }) => {
+const MovieCard = React.memo(({ movie, userRatings, comments, setRating, setComment }) => {
   const rating = userRatings[movie.id];
   const comment = comments[movie.id] || '';
 
@@ -31,26 +52,26 @@ const MovieCard = ({ movie, userRatings, comments, setRating, setComment }) => {
 
         <div className="action-buttons">
           <button
-            onClick={() => setRating(movie.id, rating === 'loved' ? '' : 'loved')}
-            className={`action-btn loved ${rating === 'loved' ? 'active' : ''}`}
+            onClick={() => setRating(movie.id, rating === RATING_TYPES.LOVED ? RATING_TYPES.UNRATED : RATING_TYPES.LOVED)}
+            className={`action-btn loved ${rating === RATING_TYPES.LOVED ? 'active' : ''}`}
           >
             <Heart className="heart-icon" size={14} />
-            <span>Loved it</span>
+            <span>{RATING_LABELS[RATING_TYPES.LOVED]}</span>
           </button>
           <div className="action-btn-group">
             <button
-              onClick={() => setRating(movie.id, rating === 'watched' ? '' : 'watched')}
-              className={`action-btn watched ${rating === 'watched' ? 'active' : ''}`}
+              onClick={() => setRating(movie.id, rating === RATING_TYPES.WATCHED ? RATING_TYPES.UNRATED : RATING_TYPES.WATCHED)}
+              className={`action-btn watched ${rating === RATING_TYPES.WATCHED ? 'active' : ''}`}
             >
               <Eye size={14} />
-              <span>Watched</span>
+              <span>{RATING_LABELS[RATING_TYPES.WATCHED]}</span>
             </button>
             <button
-              onClick={() => setRating(movie.id, rating === 'pass' ? '' : 'pass')}
-              className={`action-btn pass ${rating === 'pass' ? 'active' : ''}`}
+              onClick={() => setRating(movie.id, rating === RATING_TYPES.PASS ? RATING_TYPES.UNRATED : RATING_TYPES.PASS)}
+              className={`action-btn pass ${rating === RATING_TYPES.PASS ? 'active' : ''}`}
             >
               <EyeOff size={14} />
-              <span>Pass</span>
+              <span>{RATING_LABELS[RATING_TYPES.PASS]}</span>
             </button>
           </div>
         </div>
@@ -64,26 +85,27 @@ const MovieCard = ({ movie, userRatings, comments, setRating, setComment }) => {
       </div>
     </div>
   );
-};
+});
 
 const SciFiTracker = () => {
   const [movies, setMovies] = useState([]);
   const [loading, setLoading] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
   const [error, setError] = useState(null);
-  const [filter, setFilter] = useState('all');
+  const [filter, setFilter] = useState(FILTER_TYPES.ALL);
   const [userRatings, setUserRatings] = useState({});
   const [comments, setComments] = useState({});
-  const [contentType, setContentType] = useState('all');
+  const [contentType, setContentType] = useState(CONTENT_TYPES.ALL);
   const [currentMoviePage, setCurrentMoviePage] = useState(1);
   const [currentTvPage, setCurrentTvPage] = useState(1);
   const [totalMoviePages, setTotalMoviePages] = useState(1);
   const [totalTvPages, setTotalTvPages] = useState(1);
   const [cachedData, setCachedData] = useState({});
+  const [lastRequestTime, setLastRequestTime] = useState(0);
 
   useEffect(() => {
-    const savedRatings = localStorage.getItem('scifiRatings');
-    const savedComments = localStorage.getItem('scifiComments');
+    const savedRatings = localStorage.getItem(STORAGE_KEYS.RATINGS);
+    const savedComments = localStorage.getItem(STORAGE_KEYS.COMMENTS);
     const savedContentType = localStorage.getItem('scifiContentType');
     const savedFilter = localStorage.getItem('scifiFilter');
     const savedMoviePage = localStorage.getItem('scifiMoviePage');
@@ -93,27 +115,66 @@ const SciFiTracker = () => {
     console.log('Loading saved data from localStorage:', {
       ratingsCount: savedRatings ? Object.keys(JSON.parse(savedRatings)).length : 0,
       commentsCount: savedComments ? Object.keys(JSON.parse(savedComments)).length : 0,
-      filter: savedFilter || 'all',
-      contentType: savedContentType || 'all',
+      filter: savedFilter || FILTER_TYPES.ALL,
+      contentType: savedContentType || CONTENT_TYPES.ALL,
       moviePage: savedMoviePage || 1,
       tvPage: savedTvPage || 1
     });
     
-    if (savedRatings) setUserRatings(JSON.parse(savedRatings));
-    if (savedComments) setComments(JSON.parse(savedComments));
-    if (savedContentType) setContentType(savedContentType);
+    // Safely load and validate stored data
+    const validatedRatings = validateStoredData(savedRatings, validateRatings);
+    const validatedComments = validateStoredData(savedComments, validateComments);
+    const validatedCachedData = validateStoredData(savedCachedData, (data) => typeof data === 'object');
+
+    if (validatedRatings) setUserRatings(validatedRatings);
+    if (validatedComments) setComments(validatedComments);
+    if (savedContentType && validateContentType(savedContentType)) {
+      setContentType(savedContentType);
+    }
     if (savedFilter) setFilter(savedFilter);
-    if (savedMoviePage) setCurrentMoviePage(parseInt(savedMoviePage));
-    if (savedTvPage) setCurrentTvPage(parseInt(savedTvPage));
-    if (savedCachedData) setCachedData(JSON.parse(savedCachedData));
+    if (savedMoviePage) setCurrentMoviePage(validatePageNumber(savedMoviePage));
+    if (savedTvPage) setCurrentTvPage(validatePageNumber(savedTvPage));
+    
+    // Clean up expired cache entries and set valid cached data
+    if (validatedCachedData) {
+      const cleanedCache = {};
+      const now = Date.now();
+      Object.keys(validatedCachedData).forEach(key => {
+        if (key.endsWith('_timestamp')) {
+          const timestamp = validatedCachedData[key];
+          const cacheKey = key.replace('_timestamp', '');
+          if (now - timestamp < UI_CONFIG.CACHE_DURATION && validatedCachedData[cacheKey]) {
+            cleanedCache[key] = timestamp;
+            cleanedCache[cacheKey] = validatedCachedData[cacheKey];
+          }
+        } else if (!key.endsWith('_timestamp') && !cleanedCache[`${key}_timestamp`]) {
+          // Skip data entries without valid timestamps
+        }
+      });
+      setCachedData(cleanedCache);
+    }
+
+    // Clean up invalid data if validation failed
+    if (savedRatings && !validatedRatings) {
+      localStorage.removeItem(STORAGE_KEYS.RATINGS);
+      console.warn('Invalid ratings data removed from localStorage');
+    }
+    if (savedComments && !validatedComments) {
+      localStorage.removeItem(STORAGE_KEYS.COMMENTS);
+      console.warn('Invalid comments data removed from localStorage');
+    }
+    if (savedCachedData && !validatedCachedData) {
+      sessionStorage.removeItem('scifiCachedData');
+      console.warn('Invalid cached data removed from sessionStorage');
+    }
   }, []);
 
   useEffect(() => {
-    localStorage.setItem('scifiRatings', JSON.stringify(userRatings));
+    localStorage.setItem(STORAGE_KEYS.RATINGS, JSON.stringify(userRatings));
   }, [userRatings]);
 
   useEffect(() => {
-    localStorage.setItem('scifiComments', JSON.stringify(comments));
+    localStorage.setItem(STORAGE_KEYS.COMMENTS, JSON.stringify(comments));
   }, [comments]);
 
   useEffect(() => {
@@ -139,10 +200,37 @@ const SciFiTracker = () => {
   }, [cachedData]);
 
   useEffect(() => {
-    fetchSciFiContent();
+    // Reset pagination when content type changes
+    setCurrentMoviePage(1);
+    setCurrentTvPage(1);
+    setMovies([]); // Clear existing data
+    fetchSciFiContent(false, true); // Force fresh fetch
   }, [contentType]);
 
-  const fetchSciFiContent = async (append = false) => {
+  // Periodic cache cleanup
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCachedData(prev => {
+        const cleaned = {};
+        const now = Date.now();
+        Object.keys(prev).forEach(key => {
+          if (key.endsWith('_timestamp')) {
+            const timestamp = prev[key];
+            const cacheKey = key.replace('_timestamp', '');
+            if (now - timestamp < UI_CONFIG.CACHE_DURATION && prev[cacheKey]) {
+              cleaned[key] = timestamp;
+              cleaned[cacheKey] = prev[cacheKey];
+            }
+          }
+        });
+        return cleaned;
+      });
+    }, UI_CONFIG.CACHE_DURATION);
+
+    return () => clearInterval(interval);
+  }, []);
+
+  const fetchSciFiContent = async (append = false, forceRefresh = false) => {
     if (append) {
       setLoadingMore(true);
     } else {
@@ -173,13 +261,33 @@ const SciFiTracker = () => {
         }
       };
       
-      // Check cache first
-      const cacheKey = `movies-${currentMoviePage}-tv-${currentTvPage}`;
-      if (cachedData[cacheKey] && !append) {
-        console.log('Using cached data for', cacheKey);
+      // API rate limiting - ensure minimum time between requests
+      const now = Date.now();
+      const timeSinceLastRequest = now - lastRequestTime;
+      const minInterval = 100; // 100ms minimum between requests
+      
+      if (timeSinceLastRequest < minInterval) {
+        await new Promise(resolve => setTimeout(resolve, minInterval - timeSinceLastRequest));
+      }
+      setLastRequestTime(Date.now());
+      
+      // Check cache first (skip if forcing refresh)
+      const cacheKey = `${STORAGE_KEYS.CACHE_PREFIX}${contentType}-movies-${currentMoviePage}-tv-${currentTvPage}`;
+      const cacheTimestamp = cachedData[`${cacheKey}_timestamp`];
+      const isCacheValid = cacheTimestamp && (Date.now() - cacheTimestamp < UI_CONFIG.CACHE_DURATION);
+      
+      if (cachedData[cacheKey] && !append && !forceRefresh && isCacheValid) {
+        console.log('Using cached data for', cacheKey, 'cached at', new Date(cacheTimestamp));
         setMovies(cachedData[cacheKey]);
         setLoading(false);
         return;
+      } else if (cachedData[cacheKey] && !isCacheValid) {
+        console.log('Cache expired for', cacheKey, 'fetching fresh data');
+        // Remove expired cache entry
+        setCachedData(prev => {
+          const { [cacheKey]: removed, [`${cacheKey}_timestamp`]: removedTimestamp, ...rest } = prev;
+          return rest;
+        });
       }
       
       // Fetch multiple pages for initial load
@@ -188,20 +296,20 @@ const SciFiTracker = () => {
       const tvPromises = [];
       
       // Only fetch based on content type
-      if (contentType === 'all' || contentType === 'movies') {
+      if (contentType === CONTENT_TYPES.ALL || contentType === CONTENT_TYPES.MOVIES) {
         for (let i = 0; i < pagesToFetch; i++) {
           const moviePage = append ? currentMoviePage + i : i + 1;
           moviePromises.push(
-            fetch(`https://api.themoviedb.org/3/discover/movie?with_genres=878&sort_by=popularity.desc&page=${moviePage}`, options)
+            fetch(`${API_CONFIG.BASE_URL}${API_CONFIG.ENDPOINTS.DISCOVER_MOVIE}?with_genres=${API_CONFIG.GENRE_IDS.SCI_FI_MOVIES}&sort_by=${API_CONFIG.DEFAULT_PARAMS.SORT_BY}&page=${moviePage}`, options)
           );
         }
       }
       
-      if (contentType === 'all' || contentType === 'tv') {
+      if (contentType === CONTENT_TYPES.ALL || contentType === CONTENT_TYPES.TV) {
         for (let i = 0; i < pagesToFetch; i++) {
           const tvPage = append ? currentTvPage + i : i + 1;
           tvPromises.push(
-            fetch(`https://api.themoviedb.org/3/discover/tv?with_genres=10765&sort_by=popularity.desc&page=${tvPage}`, options)
+            fetch(`${API_CONFIG.BASE_URL}${API_CONFIG.ENDPOINTS.DISCOVER_TV}?with_genres=${API_CONFIG.GENRE_IDS.SCI_FI_TV}&sort_by=${API_CONFIG.DEFAULT_PARAMS.SORT_BY}&page=${tvPage}`, options)
           );
         }
       }
@@ -241,30 +349,36 @@ const SciFiTracker = () => {
       
       if (movieDataArray.length > 0) {
         movieDataArray.forEach(data => {
-          const processedMovies = data.results.map(movie => ({
-            id: `movie-${movie.id}`,
-            title: movie.title,
-            type: "Movie",
-            year: new Date(movie.release_date).getFullYear() || 'TBA',
-            poster: movie.poster_path ? `https://image.tmdb.org/t/p/w500${movie.poster_path}` : `https://images.unsplash.com/photo-1534447677768-be436bb09401?w=400&h=600&fit=crop`,
-            synopsis: movie.overview || "No synopsis available.",
-            imdbRating: movie.vote_average.toFixed(1)
-          }));
+          const processedMovies = data.results.map(movie => {
+            const sanitized = sanitizeAPIResponse(movie);
+            return {
+              id: `movie-${movie.id}`,
+              title: sanitized.title,
+              type: "Movie",
+              year: new Date(movie.release_date).getFullYear() || 'TBA',
+              poster: movie.poster_path ? `${IMAGE_CONFIG.TMDB_BASE_URL}${movie.poster_path}` : IMAGE_CONFIG.FALLBACK_IMAGE,
+              synopsis: sanitized.synopsis || "No synopsis available.",
+              imdbRating: movie.vote_average.toFixed(1)
+            };
+          });
           allMovies.push(...processedMovies);
         });
       }
       
       if (tvDataArray.length > 0) {
         tvDataArray.forEach(data => {
-          const processedTVShows = data.results.map(show => ({
-            id: `tv-${show.id}`,
-            title: show.name,
-            type: "TV Series",
-            year: new Date(show.first_air_date).getFullYear() || 'TBA',
-            poster: show.poster_path ? `https://image.tmdb.org/t/p/w500${show.poster_path}` : `https://images.unsplash.com/photo-1614730321146-b6fa6a46bcb4?w=400&h=600&fit=crop`,
-            synopsis: show.overview || "No synopsis available.",
-            imdbRating: show.vote_average.toFixed(1)
-          }));
+          const processedTVShows = data.results.map(show => {
+            const sanitized = sanitizeAPIResponse({ ...show, title: show.name });
+            return {
+              id: `tv-${show.id}`,
+              title: sanitized.title,
+              type: "TV Series",
+              year: new Date(show.first_air_date).getFullYear() || 'TBA',
+              poster: show.poster_path ? `${IMAGE_CONFIG.TMDB_BASE_URL}${show.poster_path}` : IMAGE_CONFIG.FALLBACK_IMAGE,
+              synopsis: sanitized.synopsis || "No synopsis available.",
+              imdbRating: show.vote_average.toFixed(1)
+            };
+          });
           allTVShows.push(...processedTVShows);
         });
       }
@@ -283,10 +397,11 @@ const SciFiTracker = () => {
         });
       } else {
         setMovies(newContent);
-        // Cache the data
+        // Cache the data with timestamp
         setCachedData(prev => ({
           ...prev,
-          [cacheKey]: newContent
+          [cacheKey]: newContent,
+          [`${cacheKey}_timestamp`]: Date.now()
         }));
       }
     } catch (err) {
@@ -297,47 +412,72 @@ const SciFiTracker = () => {
     }
   };
 
-  const setRating = (movieId, rating) => {
+  const setRating = React.useCallback((movieId, rating) => {
     setUserRatings(prev => ({ ...prev, [movieId]: rating }));
-  };
+  }, []);
 
+  // Debounced comment saving
+  const commentTimeouts = React.useRef({});
   const setComment = (movieId, comment) => {
+    // Clear previous timeout for this movie
+    if (commentTimeouts.current[movieId]) {
+      clearTimeout(commentTimeouts.current[movieId]);
+    }
+    
+    // Update UI immediately
     setComments(prev => ({ ...prev, [movieId]: comment }));
+    
+    // Debounce validation and trimming
+    commentTimeouts.current[movieId] = setTimeout(() => {
+      setComments(prev => {
+        const trimmedComment = comment.trim().slice(0, UI_CONFIG.COMMENT_MAX_LENGTH);
+        return { ...prev, [movieId]: trimmedComment };
+      });
+      delete commentTimeouts.current[movieId];
+    }, UI_CONFIG.DEBOUNCE_DELAY);
   };
 
-  const loadMoreContent = async () => {
-    if (contentType === 'all' || contentType === 'movies') {
+  const loadMoreContent = React.useCallback(async () => {
+    if (contentType === CONTENT_TYPES.ALL || contentType === CONTENT_TYPES.MOVIES) {
       setCurrentMoviePage(currentMoviePage + 3);
     }
-    if (contentType === 'all' || contentType === 'tv') {
+    if (contentType === CONTENT_TYPES.ALL || contentType === CONTENT_TYPES.TV) {
       setCurrentTvPage(currentTvPage + 3);
     }
     
     await fetchSciFiContent(true);
-  };
+  }, [contentType, currentMoviePage, currentTvPage]);
 
   const canLoadMore = () => {
-    if (contentType === 'movies') {
+    if (contentType === CONTENT_TYPES.MOVIES) {
       return currentMoviePage < totalMoviePages;
-    } else if (contentType === 'tv') {
+    } else if (contentType === CONTENT_TYPES.TV) {
       return currentTvPage < totalTvPages;
     } else {
       return currentMoviePage < totalMoviePages || currentTvPage < totalTvPages;
     }
   };
 
-  const getFilteredMovies = () => {
-    if (filter === 'all') return movies;
-    if (filter === 'unwatched') return movies.filter(m => !userRatings[m.id] || userRatings[m.id] === '');
+  // Memoize filtered movies to prevent recalculation on every render
+  const filteredMovies = useMemo(() => {
+    if (filter === FILTER_TYPES.ALL) return movies;
+    if (filter === FILTER_TYPES.TO_WATCH) return movies.filter(m => !userRatings[m.id] || userRatings[m.id] === RATING_TYPES.UNRATED);
     return movies.filter(m => userRatings[m.id] === filter);
-  };
+  }, [movies, userRatings, filter]);
 
-  const renderFilterButton = (key, label, icon) => {
-    const count = key === 'all' 
-      ? movies.length 
-      : key === 'unwatched'
-        ? movies.filter(m => !userRatings[m.id] || userRatings[m.id] === '').length
-        : movies.filter(m => userRatings[m.id] === key).length;
+  // Memoize filter counts to prevent recalculation on every render
+  const filterCounts = useMemo(() => {
+    return {
+      all: movies.length,
+      [FILTER_TYPES.LOVED]: movies.filter(m => userRatings[m.id] === RATING_TYPES.LOVED).length,
+      [FILTER_TYPES.WATCHED]: movies.filter(m => userRatings[m.id] === RATING_TYPES.WATCHED).length,
+      [FILTER_TYPES.PASS]: movies.filter(m => userRatings[m.id] === RATING_TYPES.PASS).length,
+      [FILTER_TYPES.TO_WATCH]: movies.filter(m => !userRatings[m.id] || userRatings[m.id] === RATING_TYPES.UNRATED).length
+    };
+  }, [movies, userRatings]);
+
+  const renderFilterButton = React.useCallback((key, label, icon) => {
+    const count = filterCounts[key];
 
     return (
       <button
@@ -348,7 +488,7 @@ const SciFiTracker = () => {
         <span>{label} ({count})</span>
       </button>
     );
-  }
+  }, [filterCounts, filter]);
 
   if (loading) {
     return (
@@ -361,19 +501,16 @@ const SciFiTracker = () => {
     );
   }
 
-  if (error && !useMockData) {
+  if (error) {
     return (
       <div className="error-indicator">
         <div className="error-indicator-content">
           <AlertCircle size={48} className="error-icon" />
           <p className="error-message">{error}</p>
-          <p className="error-subtext">Switching to mock data as a fallback.</p>
+          <p className="error-subtext">Please check your connection and try again.</p>
           <div className="error-indicator-controls">
             <button onClick={fetchSciFiContent} className="btn btn-primary">
               Retry
-            </button>
-            <button onClick={() => setUseMockData(true)} className="btn">
-              Use Mock Data
             </button>
           </div>
         </div>
@@ -381,7 +518,6 @@ const SciFiTracker = () => {
     );
   }
 
-  const filteredMovies = getFilteredMovies();
 
   return (
     <div className="app-container">
@@ -400,22 +536,22 @@ const SciFiTracker = () => {
               <div className="header-controls">
                 <div className="content-type-selector">
                   <button
-                    onClick={() => setContentType('all')}
-                    className={`content-type-btn ${contentType === 'all' ? 'active' : ''}`}
+                    onClick={() => setContentType(CONTENT_TYPES.ALL)}
+                    className={`content-type-btn ${contentType === CONTENT_TYPES.ALL ? 'active' : ''}`}
                   >
-                    All
+                    {CONTENT_TYPE_LABELS[CONTENT_TYPES.ALL]}
                   </button>
                   <button
-                    onClick={() => setContentType('movies')}
-                    className={`content-type-btn ${contentType === 'movies' ? 'active' : ''}`}
+                    onClick={() => setContentType(CONTENT_TYPES.MOVIES)}
+                    className={`content-type-btn ${contentType === CONTENT_TYPES.MOVIES ? 'active' : ''}`}
                   >
-                    Movies
+                    {CONTENT_TYPE_LABELS[CONTENT_TYPES.MOVIES]}
                   </button>
                   <button
-                    onClick={() => setContentType('tv')}
-                    className={`content-type-btn ${contentType === 'tv' ? 'active' : ''}`}
+                    onClick={() => setContentType(CONTENT_TYPES.TV)}
+                    className={`content-type-btn ${contentType === CONTENT_TYPES.TV ? 'active' : ''}`}
                   >
-                    TV Shows
+                    {CONTENT_TYPE_LABELS[CONTENT_TYPES.TV]}
                   </button>
                 </div>
                 <button
@@ -428,11 +564,11 @@ const SciFiTracker = () => {
               </div>
             </div>
             <div className="filter-controls">
-              {renderFilterButton('all', 'All', null)}
-              {renderFilterButton('loved', 'Loved', <Heart size={14} />)}
-              {renderFilterButton('watched', 'Watched', <Eye size={14} />)}
-              {renderFilterButton('pass', 'Pass', <EyeOff size={14} />)}
-              {renderFilterButton('unwatched', 'Unwatched', null)}
+              {renderFilterButton(FILTER_TYPES.ALL, FILTER_LABELS[FILTER_TYPES.ALL], null)}
+              {renderFilterButton(FILTER_TYPES.LOVED, FILTER_LABELS[FILTER_TYPES.LOVED], <Heart size={14} />)}
+              {renderFilterButton(FILTER_TYPES.WATCHED, FILTER_LABELS[FILTER_TYPES.WATCHED], <Eye size={14} />)}
+              {renderFilterButton(FILTER_TYPES.PASS, FILTER_LABELS[FILTER_TYPES.PASS], <EyeOff size={14} />)}
+              {renderFilterButton(FILTER_TYPES.TO_WATCH, FILTER_LABELS[FILTER_TYPES.TO_WATCH], null)}
             </div>
           </div>
         </header>
@@ -485,9 +621,9 @@ const SciFiTracker = () => {
                     )}
                   </button>
                   <p className="load-more-info">
-                    {contentType === 'movies' && `Movies: Page ${Math.ceil(currentMoviePage/3)} of ${Math.ceil(totalMoviePages/3)}`}
-                    {contentType === 'tv' && `TV Shows: Page ${Math.ceil(currentTvPage/3)} of ${Math.ceil(totalTvPages/3)}`}
-                    {contentType === 'all' && `Movies: Page ${Math.ceil(currentMoviePage/3)} of ${Math.ceil(totalMoviePages/3)} | TV: Page ${Math.ceil(currentTvPage/3)} of ${Math.ceil(totalTvPages/3)}`}
+                    {contentType === CONTENT_TYPES.MOVIES && `Movies: Page ${Math.ceil(currentMoviePage/3)} of ${Math.ceil(totalMoviePages/3)}`}
+                    {contentType === CONTENT_TYPES.TV && `TV Shows: Page ${Math.ceil(currentTvPage/3)} of ${Math.ceil(totalTvPages/3)}`}
+                    {contentType === CONTENT_TYPES.ALL && `Movies: Page ${Math.ceil(currentMoviePage/3)} of ${Math.ceil(totalMoviePages/3)} | TV: Page ${Math.ceil(currentTvPage/3)} of ${Math.ceil(totalTvPages/3)}`}
                   </p>
                 </div>
               )}
@@ -499,4 +635,12 @@ const SciFiTracker = () => {
   );
 };
 
-export default SciFiTracker;
+const App = () => (
+  <ErrorBoundary>
+    <SciFiTracker />
+  </ErrorBoundary>
+);
+
+// Export SciFiTracker for testing
+export { SciFiTracker };
+export default App;
