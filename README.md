@@ -2,6 +2,8 @@
 
 A React-based web application for discovering, rating, and tracking science fiction movies and TV series. The app integrates with The Movie Database (TMDB) API and provides elegant fallback to curated mock data.
 
+🌐 **Live Demo**: [https://ben-newman10.github.io/sci-fi-viewer](https://ben-newman10.github.io/sci-fi-viewer)
+
 ## Features
 
 - **Discover Sci-Fi Content**: Browse movies and TV series with detailed information
@@ -56,6 +58,7 @@ npm start
 - `npm start` - Runs the app in development mode with hot reloading
 - `npm run build` - Builds the app for production
 - `npm test` - Launches the test runner
+- `npm run deploy` - Manually deploy to GitHub Pages
 - `npm run eject` - Ejects from Create React App (use with caution)
 
 ## Usage
@@ -71,7 +74,7 @@ npm start
 ### TMDB API
 - Live data from The Movie Database
 - Sci-fi movies (genre ID: 878) and TV shows (genre ID: 10765)
-- Requires CORS proxy for browser requests
+- Direct API calls using Bearer token authentication
 - Automatic fallback to mock data on failure
 
 ### Mock Data
@@ -85,6 +88,29 @@ npm start
 - **State Management**: React hooks (`useState`, `useEffect`)
 - **Data Persistence**: localStorage for ratings and comments
 - **Styling**: Tailwind CSS with custom utilities and animations
+
+## Deployment
+
+The app is automatically deployed to GitHub Pages using GitHub Actions:
+
+- **Automatic Deployment**: Every push to the `main` branch triggers a new deployment
+- **Build Process**: Uses Node.js 18 and npm ci for consistent builds
+- **Environment Variables**: TMDB API key is securely stored as a GitHub secret
+- **GitHub Pages**: Deployed using the official GitHub Pages actions
+
+### Manual Deployment
+
+You can also deploy manually using:
+```bash
+npm run deploy
+```
+
+### Environment Setup
+
+For TMDB API integration, you'll need:
+1. A TMDB API key from [themoviedb.org](https://www.themoviedb.org/settings/api)
+2. Set `REACT_APP_TMDB_API_KEY` as a GitHub repository secret
+3. Configure GitHub Pages source as "GitHub Actions"
 
 ## Contributing
 

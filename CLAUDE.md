@@ -6,6 +6,8 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 This is a React-based sci-fi movie and TV series tracker application that allows users to discover, rate, and comment on science fiction content. The app integrates with The Movie Database (TMDB) API and provides a fallback to mock data.
 
+**Live Application**: https://ben-newman10.github.io/sci-fi-viewer
+
 ## Development Commands
 
 ```bash
@@ -17,6 +19,9 @@ npm run build
 
 # Run tests
 npm test
+
+# Deploy to GitHub Pages manually
+npm run deploy
 
 # Eject from Create React App (use with caution)
 npm run eject
@@ -66,8 +71,8 @@ npm run eject
 
 **TMDB API Configuration**:
 - Uses genre ID 878 for sci-fi movies, 10765 for sci-fi TV shows
-- Requires CORS proxy (currently `cors-anywhere.herokuapp.com`)
-- API key embedded in code: `786f761996ec79129e5c32f42bed5760`
+- Direct API calls using Bearer token authentication
+- API key stored as environment variable: `REACT_APP_TMDB_API_KEY`
 - Automatically falls back to mock data on API failure
 
 ### Styling Architecture
@@ -84,8 +89,22 @@ npm run eject
 3. **Responsive Design**: Grid system adapts from 1 column to 6 columns based on screen size
 4. **State Persistence**: All user data automatically saves on change
 
+## Deployment
+
+**GitHub Pages Deployment**:
+- Automatic deployment on every push to main branch via GitHub Actions
+- Uses Node.js 18 and npm ci for consistent builds
+- TMDB API key securely stored as GitHub repository secret
+- GitHub Pages configured to deploy from GitHub Actions (not branch)
+
+**Deployment Configuration**:
+- Homepage URL: `https://ben-newman10.github.io/sci-fi-viewer`
+- Build directory: `build/`
+- Environment variables: `REACT_APP_TMDB_API_KEY` (GitHub secret)
+
 ### Common Issues
 
 - **Textarea Focus Loss**: Ensure MovieCard is not redefined inside parent component
-- **CORS Issues**: TMDB API requires proxy; app gracefully degrades to mock data
+- **API Authentication**: Ensure TMDB API key is properly set in GitHub secrets
 - **Image Loading**: Some Unsplash URLs may break; update with working sci-fi themed alternatives
+- **Build Failures**: Check that all environment variables are properly configured in GitHub Actions
