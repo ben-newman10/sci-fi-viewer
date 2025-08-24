@@ -621,13 +621,6 @@ const SciFiTracker = () => {
             </div>
           ) : (
             <>
-              {Object.keys(userRatings).length > 0 && (
-                <div className="content-info">
-                  <p className="data-restored">
-                    ✅ Your ratings and comments have been restored
-                  </p>
-                </div>
-              )}
               <div className="content-grid">
                 {filteredMovies.map(movie => (
                   <MovieCard 
