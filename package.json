@@ -2,7 +2,7 @@
   "name": "sci-fi-viewer",
   "version": "1.0.0",
   "description": "A React app to discover and track Science Fiction TV series and movies",
-  "homepage": "https://ben-newman10.github.io/sci-fi-viewer",
+  "homepage": "https://sci-fi.humphreysnewman.co.uk",
   "main": "index.js",
   "scripts": {
     "start": "react-scripts start",
