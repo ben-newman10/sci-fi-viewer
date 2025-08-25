@@ -1,5 +1,12 @@
 import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { Star, Eye, EyeOff, Heart, Filter, Sparkles, Loader2, AlertCircle, RefreshCw } from 'lucide-react';
+
+// YouTube Logo Component
+const YouTubeIcon = ({ size = 16 }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor">
+    <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
+  </svg>
+);
 import './App.css';
 import { 
   validateRatings, 
@@ -51,26 +58,42 @@ const MovieCard = React.memo(({ movie, userRatings, comments, setRating, setComm
         <p className="movie-card-synopsis">{movie.synopsis}</p>
 
         <div className="action-buttons">
-          <button
-            onClick={() => setRating(movie.id, rating === RATING_TYPES.LOVED ? RATING_TYPES.UNRATED : RATING_TYPES.LOVED)}
-            className={`action-btn loved ${rating === RATING_TYPES.LOVED ? 'active' : ''}`}
-          >
-            <Heart className="heart-icon" size={14} />
-            <span>{RATING_LABELS[RATING_TYPES.LOVED]}</span>
-          </button>
+          <div className="top-row-buttons">
+            {movie.trailerKey ? (
+              <button
+                onClick={() => window.open(`https://www.youtube.com/watch?v=${movie.trailerKey}`, '_blank', 'noopener,noreferrer')}
+                className="action-btn youtube-trailer"
+                title="Watch Trailer"
+              >
+                <YouTubeIcon size={16} />
+                <span>Trailer</span>
+              </button>
+            ) : (
+              <button className="action-btn no-trailer" disabled>
+                <span>No Trailer</span>
+              </button>
+            )}
+          </div>
           <div className="action-btn-group">
+            <button
+              onClick={() => setRating(movie.id, rating === RATING_TYPES.LOVED ? RATING_TYPES.UNRATED : RATING_TYPES.LOVED)}
+              className={`action-btn loved ${rating === RATING_TYPES.LOVED ? 'active' : ''}`}
+            >
+              <Heart className="heart-icon" size={16} />
+              <span>{RATING_LABELS[RATING_TYPES.LOVED]}</span>
+            </button>
             <button
               onClick={() => setRating(movie.id, rating === RATING_TYPES.WATCHED ? RATING_TYPES.UNRATED : RATING_TYPES.WATCHED)}
               className={`action-btn watched ${rating === RATING_TYPES.WATCHED ? 'active' : ''}`}
             >
-              <Eye size={14} />
+              <Eye size={16} />
               <span>{RATING_LABELS[RATING_TYPES.WATCHED]}</span>
             </button>
             <button
               onClick={() => setRating(movie.id, rating === RATING_TYPES.PASS ? RATING_TYPES.UNRATED : RATING_TYPES.PASS)}
               className={`action-btn pass ${rating === RATING_TYPES.PASS ? 'active' : ''}`}
             >
-              <EyeOff size={14} />
+              <EyeOff size={16} />
               <span>{RATING_LABELS[RATING_TYPES.PASS]}</span>
             </button>
           </div>
@@ -90,6 +113,7 @@ const MovieCard = React.memo(({ movie, userRatings, comments, setRating, setComm
 const SciFiTracker = () => {
   const [movies, setMovies] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [isScrolled, setIsScrolled] = useState(false);
   const [loadingMore, setLoadingMore] = useState(false);
   const [error, setError] = useState(null);
   const [filter, setFilter] = useState(FILTER_TYPES.ALL);
@@ -235,6 +259,21 @@ const SciFiTracker = () => {
     }, UI_CONFIG.CACHE_DURATION);
 
     return () => clearInterval(interval);
+  }, []);
+
+  // Scroll detection for hiding/showing header title
+  useEffect(() => {
+    const handleScroll = () => {
+      const scrollPosition = window.scrollY;
+      const scrollThreshold = 50; // Hide title after scrolling 50px
+      setIsScrolled(scrollPosition > scrollThreshold);
+    };
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+    };
   }, []);
 
   // Utility function to remove duplicate movies based on ID
@@ -412,19 +451,22 @@ const SciFiTracker = () => {
       // Apply deduplication to new content
       const deduplicatedNewContent = deduplicateMovies(newContent);
       
+      // Fetch video data for the new content
+      const contentWithVideos = await fetchVideoData(deduplicatedNewContent);
+      
       if (append) {
         setMovies(prev => {
-          const combined = [...prev, ...deduplicatedNewContent];
+          const combined = [...prev, ...contentWithVideos];
           // Remove duplicates from combined array
           const unique = deduplicateMovies(combined);
           return unique.sort((a, b) => parseFloat(b.imdbRating) - parseFloat(a.imdbRating));
         });
       } else {
-        setMovies(deduplicatedNewContent);
-        // Cache the deduplicated data with timestamp
+        setMovies(contentWithVideos);
+        // Cache the enhanced data with timestamp
         setCachedData(prev => ({
           ...prev,
-          [cacheKey]: deduplicatedNewContent,
+          [cacheKey]: contentWithVideos,
           [`${cacheKey}_timestamp`]: Date.now()
         }));
       }
@@ -440,6 +482,55 @@ const SciFiTracker = () => {
         setLoadingMore(false);
       }
     }
+  };
+
+  // Function to fetch video data for movies and TV shows
+  const fetchVideoData = async (items) => {
+    const API_KEY = process.env.REACT_APP_TMDB_API_KEY;
+    if (!API_KEY) return items; // Return original items if no API key
+
+    const options = {
+      method: 'GET',
+      headers: {
+        accept: 'application/json',
+        Authorization: `Bearer ${API_KEY}`
+      }
+    };
+
+    const enhancedItems = await Promise.all(
+      items.map(async (item) => {
+        try {
+          const [type, originalId] = item.id.split('-');
+          const endpoint = type === 'movie' ? 'movie' : 'tv';
+          const response = await fetch(
+            `${API_CONFIG.BASE_URL}/${endpoint}/${originalId}/videos`,
+            options
+          );
+          
+          if (response.ok) {
+            const videoData = await response.json();
+            const trailer = videoData.results?.find(
+              video => video.type === 'Trailer' && 
+                      video.site === 'YouTube' && 
+                      video.iso_639_1 === 'en'
+            ) || videoData.results?.find(
+              video => video.type === 'Trailer' && video.site === 'YouTube'
+            );
+            
+            return {
+              ...item,
+              trailerKey: trailer?.key || null
+            };
+          }
+        } catch (error) {
+          console.log(`Failed to fetch video data for ${item.id}:`, error);
+        }
+        
+        return item; // Return original item if video fetch fails
+      })
+    );
+
+    return enhancedItems;
   };
 
   const setRating = React.useCallback((movieId, rating) => {
@@ -565,13 +656,15 @@ const SciFiTracker = () => {
         <div className="bg-shape2"></div>
       </div>
       <div className="main-content">
-        <header className="app-header">
+        <header className={`app-header ${isScrolled ? 'scrolled' : ''}`}>
           <div className="header-content">
             <div className="header-top">
-              <div className="header-title">
-                <Sparkles size={36} className="text-blue-400" />
-                <h1>Sci-Fi Tracker</h1>
-              </div>
+              {!isScrolled && (
+                <div className="header-title">
+                  <Sparkles size={36} className="text-blue-400" />
+                  <h1>Sci-Fi Tracker</h1>
+                </div>
+              )}
               <div className="header-controls">
                 <div className="content-type-selector">
                   <button

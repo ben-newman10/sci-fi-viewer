@@ -30,7 +30,7 @@ export const RATING_TYPES = {
 };
 
 export const RATING_LABELS = {
-  [RATING_TYPES.LOVED]: 'Loved It',
+  [RATING_TYPES.LOVED]: 'Loved',
   [RATING_TYPES.WATCHED]: 'Watched',
   [RATING_TYPES.PASS]: 'Pass',
   [RATING_TYPES.UNRATED]: 'Rate'
